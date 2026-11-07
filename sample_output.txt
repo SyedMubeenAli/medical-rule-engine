@@ -1,0 +1,100 @@
+======================================================================
+CASE A: Flu symptoms
+Facts: cough(ali), fever(ali), patient(ali), sore_throat(ali)
+
+FORWARD CHAINING
+  step 1 | R01 | fever(ali), cough(ali), sore_throat(ali)  =>  flu(ali)
+  step 2 | R06 | flu(ali)  =>  respiratory_condition(ali)
+Possible conditions: ['flu']
+Contraindicated    : none
+
+BACKWARD CHAINING goal: flu(ali) -> True
+? flu(ali)
+    try R01, needs: fever(ali), cough(ali), sore_throat(ali)
+        ? fever(ali)
+            known fact  ->  TRUE
+        ? cough(ali)
+            known fact  ->  TRUE
+        ? sore_throat(ali)
+            known fact  ->  TRUE
+    R01 succeeded  ->  TRUE
+======================================================================
+CASE B: Common Cold symptoms
+Facts: patient(sara), runny_nose(sara), sneezing(sara)
+
+FORWARD CHAINING
+  step 1 | R02 | sneezing(sara), runny_nose(sara)  =>  common_cold(sara)
+  step 2 | R07 | common_cold(sara)  =>  respiratory_condition(sara)
+Possible conditions: ['common_cold']
+Contraindicated    : none
+
+BACKWARD CHAINING goal: common_cold(sara) -> True
+? common_cold(sara)
+    try R02, needs: sneezing(sara), runny_nose(sara)
+        ? sneezing(sara)
+            known fact  ->  TRUE
+        ? runny_nose(sara)
+            known fact  ->  TRUE
+    R02 succeeded  ->  TRUE
+======================================================================
+CASE C: Penicillin allergy + amoxicillin
+Facts: allergy(ali, penicillin), fever(ali), patient(ali), takes(ali, amoxicillin)
+
+FORWARD CHAINING
+  step 1 | R09 | allergy(ali, penicillin), takes(ali, amoxicillin)  =>  contraindicated(ali, amoxicillin)
+Possible conditions: none
+Contraindicated    : ['amoxicillin']
+
+BACKWARD CHAINING goal: contraindicated(ali, amoxicillin) -> True
+? contraindicated(ali, amoxicillin)
+    try R09, needs: allergy(ali, penicillin), takes(ali, amoxicillin)
+        ? allergy(ali, penicillin)
+            known fact  ->  TRUE
+        ? takes(ali, amoxicillin)
+            known fact  ->  TRUE
+    R09 succeeded  ->  TRUE
+======================================================================
+CASE D: Stomach illness + ibuprofen (multi-step)
+Facts: diarrhea(omar), nausea(omar), patient(omar), takes(omar, ibuprofen), vomiting(omar)
+
+FORWARD CHAINING
+  step 1 | R03 | nausea(omar), vomiting(omar), diarrhea(omar)  =>  gastroenteritis(omar)
+  step 2 | R08 | gastroenteritis(omar)  =>  digestive_condition(omar)
+  step 3 | R11 | gastroenteritis(omar), takes(omar, ibuprofen)  =>  contraindicated(omar, ibuprofen)
+Possible conditions: ['gastroenteritis']
+Contraindicated    : ['ibuprofen']
+
+BACKWARD CHAINING goal: contraindicated(omar, ibuprofen) -> True
+? contraindicated(omar, ibuprofen)
+    try R11, needs: gastroenteritis(omar), takes(omar, ibuprofen)
+        ? gastroenteritis(omar)
+            try R03, needs: nausea(omar), vomiting(omar), diarrhea(omar)
+                ? nausea(omar)
+                    known fact  ->  TRUE
+                ? vomiting(omar)
+                    known fact  ->  TRUE
+                ? diarrhea(omar)
+                    known fact  ->  TRUE
+            R03 succeeded  ->  TRUE
+        ? takes(omar, ibuprofen)
+            known fact  ->  TRUE
+    R11 succeeded  ->  TRUE
+======================================================================
+CASE E: Not enough symptoms (nothing derived)
+Facts: cough(zara), fever(zara), patient(zara)
+
+FORWARD CHAINING
+  no rule fired
+Possible conditions: none
+Contraindicated    : none
+
+BACKWARD CHAINING goal: flu(zara) -> False
+? flu(zara)
+    try R01, needs: fever(zara), cough(zara), sore_throat(zara)
+        ? fever(zara)
+            known fact  ->  TRUE
+        ? cough(zara)
+            known fact  ->  TRUE
+        ? sore_throat(zara)
+            not a fact and no rule concludes it  ->  FALSE
+    R01 failed  ->  FALSE
